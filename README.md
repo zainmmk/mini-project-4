@@ -1,27 +1,32 @@
 # Mini-project IV
 
-### [Assignment](assignment.md)
-
 ## Project/Goals
-(fill in your description and goals here)
+The goal of this project is to use a number of features about a loan applicant and build a model that will predict whether or not that person will receive a loan based on those features.
 
 ## Hypothesis
-(fill in your hypothesis about which subset of applicants will be most likely to have their loan approved, and why. Give some examples of how you will test this hypothesis)
+I hypothesize that individuals with higher income, credit history, higher coapplicant income, and higher education are the most likely to be approved for a loan. I believe this to be the case as those with higher income themselves can more reliably pay back loans, something banks will surely consider, and having credit history adds more confidence in the ability to pay the loan back. Higher education and coapplicant income add even more confidence to their ability to pay the loan back as education is usually tied with an individuals job prospects and coapplicant income leaves someone as a "fall back" to help pay the loan back. Through pivot tables I will be able to test my hypothesis on the given data and see if I am correct.
 
 ## EDA 
-(fill in what you discovered in your exploration of the dataset)
+While exploring the dataset, I found there to be some extreme outliers in applicant income, coapplicant income, and loan amount. The median applicant income is quite different from the mean, being 3812.5 while mean was 5403, potentially due to the presence of the outliers. I was able to see that males had a much higher standard deviation in the applicant income column (6185.789262), showing that the range of values was more widespread as opposed to the females values (3585.381488). The max value was also in the male column, and this may have skewed the numbers to appear more "stretched". Married applicants (6989.254425) had a similar difference in standard deviation over unmarried (4004.332801), but again it might be due to extreme outliers being present in the one group over the other. Education had a significantly different mean where graduated individuals (5857.433333) had a much higher income than not graduated (3777.283582), again there was a large difference in these two categories standard deviations as well, so the values for educated applicants are far more widespread and not as tightly packed. Loan amount also had a large number of outliers, with some being quite extreme. Histograms and boxplots were made for applicant income, coapplicant income, and loan amount and it became easier to visualize the outliers present in those columns. Histograms made comparing applicant income for graduated and not graduated individuals showed that income for not graduated applicants was more tightly packed at a lower value, while graduated was more spread out while also mainly clustering around a higher value than not graduated. Through pivoting the tables, I was able to see that applicant income when grouped by education, marital status, and gender was highest for graduated, married men, and lowest for married, ungraduated females. When testing my hypothesis, I saw that simply being a graduate with high income and high coapplicant income did not make as much of a difference as I thought it would on the loan being approved, but having credit history and being graduated had a significant increase in chances of being approved.
 
 
 ## Process
-(fill in what you did during EDA, cleaning, feature engineering, modeling, deployment, testing)
-### (your step 1)
-### (your step 2)
+### Step 1
+First I examined the dataset to understand relationships present within it. This was done by describing the dataset to look at quartile differences, standard deviation, mean and maxes for each numerical column. Then by grouping those numerical values by columns I could understand relationships between those numerical columns and have different categories influence them. Plotting columns such as applicant income and loan amount helped me understand how the values within the column were distributed. Pivot tables were another way I was able to connect categorical and numerical columns, as they allowed easy visualization of the columns together (such as a table and graph displaying education status, gender, and marital status with applicant income as a value).
+### Step 2
+This dataset contained quite a few missing values that could not just be filled with zero. I used the insight I got through my EDA to fill these missing values with what I thought was the best possible input, for some that was simply the mean but for others, such as gender, I used a combination of applicant income, marital status, education and self employment to fill in the missing values. I tried to fit each missing value with the value that fit it best based on similar rows. To deal with extreme values that existed within applicant income/coapplicant income and loan amount, the log was taken of total income and loan amount and that led to a more normal distribution.
+### Step 3
+For modeling, first loan status was label encoded with 1 being approved and 0 being now approved. Then my data was split it and I created a pipeline that would do all the preprocessing, within it I had one hot encoding for all categorical values and standard scaling for all numerical values. Seperate pipelines were then created for support vector classification, random forest classification, and linear regression. Seperate parameter dictionaries were created for each classifier, and a grid search was done for each. The best score I got was from SVC, with a C value of 0.1 and a linear kernel, so that is what I ended up using in my final pipeline. The pipeline was then saved used pickle.
+### Step 4
+For deployment, an app.py was created using flask that had a prediction class that given json data of a row, would pass the values through the pipeline which was loaded in with pickle and give a prediction of whether or not the loan would be approved or not. Using amazon web services EC2, I had an instance of ubuntu that I copied my pickle pipeline and app.py into, which I then started a tmux session in and ran my app.py, allowing my model to now give predictions when the API was called to.
+### Step 5
+Testing was done through python and postman, where an applicant was created and this applicant information was sent to the RESTful API and a response was received.
 
 ## Results/Demo
-(fill in your model's performance, details about the API you created, and (optional) a link to an live demo)
+The models performance had an accuracy of 82%, precision of 80% and recall of 98%. The area under the curve in the ROC-AUC plot was 0.767, meaning the model had a 76.7% chance of distinguishing between the "yes" class and the "no" class. The API created had a class called prediction which was used to predict the class of the applicant, and the API used a pickle version of the model in it to make the predictions.
 
-## Challanges 
-(discuss challenges you faced in the project)
+## Challenges 
+The data cleaning in this project turned out to be a more challenging task than I anticipated, knowing how to pick which groups should have their mean chosen to fill in certain values was something that took a bigger chunk of my time than expected. Using pipeline with multiple different classifiers was also challenging, as it started to get disorganized with a few different pipelines, parameter grids, and grid searches. The most difficult thing I found however was the deployment, first creating the app.py was challenging as I havent worked much with flask and then trying to get everything running on the AWS instance turned out to be more challenging than expected.
 
 ## Future Goals
-(what would you do if you had more time? are there any potential issues/biases with your model/use case?)
+Something I would like to have done is used k-nearest neighbors to fill in some values, for example gender. Using knn would have allowed me to see which gender the rows with gender missing were closer to when clustered on similarity in other rows, and this would have allowed me more accurate data cleaning I believe. I believe that having unbalanced gender in the dataset may have resulted in some bias in the model, since females were under represented it may result in bias predictions in my model.
